@@ -106,6 +106,7 @@ body {
   margin-top: 20px;
   border: 3px solid #3aa107;
   display: flex;
+  text-wrap: nowrap;
   justify-content: center;
   width: min-content;
   padding: 10px 20px;
@@ -215,6 +216,10 @@ body {
   transform: rotate(160deg);
 }
 
+.developer{
+  text-decoration: underline;
+}
+
 .footer{
   display: flex;
   align-items: center;
@@ -258,6 +263,14 @@ body {
 }
 
 @media (max-width: 768px){
+  .btn_clear {
+    margin-top: 10px;
+    padding: 10px 15px;
+    font-size: 14px;
+    text-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  
   .notion.note__completed:hover{
     background-color: #58e858;
   }
