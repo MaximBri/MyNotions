@@ -25,7 +25,7 @@ let clearCompletedTaskBtn = document.getElementById('clearCompleted') || null
 let notions: notionInterface[] = getDataFromLocalStorage()
 let existCompleted = false
 
-const addNotion = (title) => {
+const addNotion = (title: string) => {
   notions.push({ title, status: 'in process' })
   updateLocalStorage()
   renderNotes()
