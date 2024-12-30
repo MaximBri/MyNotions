@@ -1,4 +1,18 @@
-const input = document.getElementById('input')
+interface notionInterface {
+  title: string
+  status: 'completed' | 'in process'
+}
+
+const updateLocalStorage = () => {
+  localStorage.setItem(nameInLocalStorage, JSON.stringify(notions))
+}
+const getDataFromLocalStorage = (): notionInterface[] => {
+  const data = localStorage.getItem(nameInLocalStorage)
+  if (data) return JSON.parse(data)
+  else return []
+}
+
+const input = document.getElementById('input') as HTMLInputElement | null
 const btn = document.getElementById('btn')
 const notionsList = document.getElementById('notions')
 const main = document.getElementById('main')
@@ -8,17 +22,13 @@ const deleteBtn = `<button id='clearCompleted' class='btn_clear'> Очистит
 const nameInLocalStorage = 'notions'
 
 let clearCompletedTaskBtn = document.getElementById('clearCompleted') || null
-let notions = JSON.parse(localStorage.getItem(nameInLocalStorage)) || []
+let notions: notionInterface[] = getDataFromLocalStorage()
 let existCompleted = false
 
 const addNotion = (title) => {
   notions.push({ title, status: 'in process' })
   updateLocalStorage()
   renderNotes()
-}
-
-const updateLocalStorage = () => {
-  localStorage.setItem(nameInLocalStorage, JSON.stringify(notions))
 }
 
 const btnListener = () => {
@@ -33,6 +43,7 @@ const btnListener = () => {
 
 const renderNotes = () => {
   checkCompleted()
+  if (!notionsList) return
   notionsList.innerHTML = ''
   notions.forEach((element, i) => {
     const note = document.createElement('li')
@@ -95,38 +106,45 @@ const addButtonToDeleteCompletedTasks = () => {
     btn.className = 'btn-wrapper'
     btn.id = 'deleteCompleted'
     btn.innerHTML = deleteBtn
-    main.appendChild(btn)
+    if (main) main.appendChild(btn)
     clearCompletedTaskBtn = document.getElementById('clearCompleted')
   }
 }
 
-btn.onclick = () => {
-  if (input.value) {
-    addNotion(input.value)
-    updateLocalStorage()
-    renderNotes()
-    input.value = ''
-  }
-}
-
-notionsList.onclick = function (event) {
-  const btn = event.target.closest('button')
-  if (btn) {
-    if (btn.dataset.type === 'delete') {
-      notions.splice(btn.dataset.index, 1)
+if (btn) {
+  btn.onclick = () => {
+    if (input && input.value) {
+      addNotion(input.value)
+      updateLocalStorage()
       renderNotes()
-    } else {
-      notions[btn.dataset.index].status = 'completed'
-      event.target.closest('li').className += 'note__completed'
-      existCompleted = true
-      addButtonToDeleteCompletedTasks()
-      btn.remove()
-      btnListener()
+      input.value = ''
     }
-    updateLocalStorage()
   }
 }
 
-notionsList.innerHTML = textOnEmptyNotios
+notionsList &&
+  (notionsList.onclick = function (event: MouseEvent) {
+    const target = event.target as HTMLElement
+    const btn = target.closest('button')
+    if (btn) {
+      if (btn.dataset.type === 'delete') {
+        notions.splice(Number(btn.dataset.index), 1)
+        renderNotes()
+      } else {
+        notions[Number(btn.dataset.index)].status = 'completed'
+        const li = target.closest('li')
+        if (li) {
+          li.classList.add('note__completed')
+        }
+        existCompleted = true
+        addButtonToDeleteCompletedTasks()
+        btn.remove()
+        btnListener()
+      }
+      updateLocalStorage()
+    }
+  })
+
+notionsList && (notionsList.innerHTML = textOnEmptyNotios)
 renderNotes()
 btnListener()
